@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Commonplace</string>
+
+    <!-- Widget -->
+    <string name="widget_label">Commonplace quote</string>
+    <string name="widget_description">One of your quotes. Tap it for the next one.</string>
+    <string name="widget_empty">Open Commonplace to add your first quote.</string>
+    <string name="widget_preview_quote">A line worth keeping.</string>
+    <string name="widget_preview_author">Someone worth quoting</string>
+
+    <!-- Quote list -->
+    <string name="empty_state">No quotes yet.\n\nTap + to add the first one, then add the widget to your home screen.</string>
+    <string name="add_quote">Add quote</string>
+    <string name="edit_quote">Edit quote</string>
+    <string name="delete_quote">Delete quote</string>
+    <string name="delete">Delete</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="field_quote">Quote</string>
+    <string name="field_author">Author (optional)</string>
+    <string name="error_blank">A quote needs some words in it.</string>
+    <string name="error_too_long">A quote can be at most %1$d characters.</string>
+    <string name="save_failed">Could not save. Your quotes are unchanged.</string>
+
+    <!-- Menu -->
+    <string name="action_backup">Back up quotes</string>
+    <string name="action_restore">Restore from backup</string>
+    <string name="action_order">Order</string>
+    <string name="action_text_size">Widget text size</string>
+    <string name="order_sequential">In order</string>
+    <string name="order_shuffle">Shuffled</string>
+    <string name="text_size_option">%1$d pt</string>
+
+    <!-- Backup -->
+    <string name="backup_failed">Could not write the backup file.</string>
+    <plurals name="backup_saved">
+        <item quantity="one">Backed up %1$d quote.</item>
+        <item quantity="other">Backed up %1$d quotes.</item>
+    </plurals>
+
+    <!-- Restore -->
+    <string name="restore_unreadable">Could not read that file.</string>
+    <string name="restore_not_ours">That is not a Commonplace backup. Your quotes are unchanged.</string>
+    <string name="restore_newer_version">That backup came from a newer version of Commonplace. Your quotes are unchanged.</string>
+    <string name="restore_malformed">That backup could not be read: %1$s Your quotes are unchanged.</string>
+    <string name="restore_title">Restore backup</string>
+    <string name="restore_message">The backup holds %1$d quotes. You currently have %2$d.\n\nKeep both, or replace what you have?</string>
+    <string name="restore_merge">Keep both</string>
+    <string name="restore_replace">Replace</string>
+    <string name="restore_done">Restored %1$d quotes.</string>
+    <string name="restore_done_with_skips">Restored %1$d of %2$d quotes. %3$d were skipped as blank or already saved.</string>
+</resources>

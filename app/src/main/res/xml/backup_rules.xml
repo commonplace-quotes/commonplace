@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Android 11 and earlier. Names the quote collection explicitly so a device-to-device
+  transfer or a cloud restore brings it back.
+-->
+<full-backup-content>
+    <include
+        domain="file"
+        path="quotes.json" />
+    <include
+        domain="file"
+        path="quotes.json.bak" />
+    <include
+        domain="sharedpref"
+        path="commonplace.xml" />
+</full-backup-content>
