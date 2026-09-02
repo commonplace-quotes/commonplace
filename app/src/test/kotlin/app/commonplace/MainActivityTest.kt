@@ -89,24 +89,12 @@ class MainActivityTest {
     fun `adding a quote through the dialog stores it and updates the list`() {
         val activity = launch().get()
 
-        activity.findViewById<View>(R.id.addQuote).performClick()
-        val dialog = latestDialog()
-
-        val field = dialog.findViewById<EditText>(R.id.inputText)
-        assertNotNull("the dialog does not contain the quote field", field)
-        field!!.setText("Be kind whenever possible.")
-        assertEquals("the field did not take the text", "Be kind whenever possible.", field.text.toString())
-
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick()
-        shadowOf(Looper.getMainLooper()).idle()
+        addQuote(activity, "Be kind whenever possible.", author = "Someone")
 
         val stored = QuoteStore(context).load()
-        assertEquals(
-            "stored=$stored toast=${ShadowToast.getTextOfLatestToast()}",
-            1,
-            stored.size,
-        )
+        assertEquals("stored=$stored toast=${ShadowToast.getTextOfLatestToast()}", 1, stored.size)
         assertEquals("Be kind whenever possible.", stored.first().text)
+        assertEquals("Someone", stored.first().author)
         assertEquals(1, activity.findViewById<RecyclerView>(R.id.quoteList).adapter?.itemCount)
     }
 
@@ -114,12 +102,10 @@ class MainActivityTest {
     fun `a blank quote is refused rather than stored`() {
         val activity = launch().get()
 
-        activity.findViewById<View>(R.id.addQuote).performClick()
-        val dialog = latestDialog()
-        typeInto(dialog, R.id.inputText, "   ")
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick()
+        addQuote(activity, "   ")
 
         assertEquals("whitespace is not a quote", 0, QuoteStore(context).load().size)
+        assertNotNull("the user must be told why", ShadowToast.getTextOfLatestToast())
     }
 
     @Test
@@ -128,8 +114,9 @@ class MainActivityTest {
 
         activity.findViewById<View>(R.id.addQuote).performClick()
         val dialog = latestDialog()
-        typeInto(dialog, R.id.inputText, "Never meant to be saved")
+        dialog.findViewById<EditText>(R.id.inputText)!!.setText("Never meant to be saved")
         dialog.getButton(AlertDialog.BUTTON_NEGATIVE).performClick()
+        shadowOf(Looper.getMainLooper()).idle()
 
         assertEquals(0, QuoteStore(context).load().size)
     }
@@ -138,25 +125,30 @@ class MainActivityTest {
     fun `a quote longer than the cap is refused`() {
         val activity = launch().get()
 
-        activity.findViewById<View>(R.id.addQuote).performClick()
-        val dialog = latestDialog()
-        typeInto(dialog, R.id.inputText, "x".repeat(QuoteValidation.MAX_TEXT_LENGTH + 1))
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick()
+        addQuote(activity, "x".repeat(QuoteValidation.MAX_TEXT_LENGTH + 1))
 
         assertEquals(0, QuoteStore(context).load().size)
     }
 
     @Test
     fun `an added quote survives closing and reopening the app`() {
-        val first = launch().get()
-        first.findViewById<View>(R.id.addQuote).performClick()
-        val dialog = latestDialog()
-        typeInto(dialog, R.id.inputText, "Should still be here")
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick()
+        addQuote(launch().get(), "Should still be here")
 
         val reopened = launch().get()
 
         assertEquals(1, reopened.findViewById<RecyclerView>(R.id.quoteList).adapter?.itemCount)
+        assertEquals("Should still be here", QuoteStore(context).load().first().text)
+    }
+
+    @Test
+    fun `two quotes added in a row both stick`() {
+        val activity = launch().get()
+
+        addQuote(activity, "First one")
+        addQuote(activity, "Second one")
+
+        assertEquals(2, QuoteStore(context).load().size)
+        assertEquals(2, activity.findViewById<RecyclerView>(R.id.quoteList).adapter?.itemCount)
     }
 
     // --- the menu, which is the only route to backup and settings ---
@@ -185,13 +177,27 @@ class MainActivityTest {
         assertEquals(OrderMode.SHUFFLE, WidgetSettings(context).orderMode)
     }
 
+    /**
+     * Drives the real add-quote flow: tap the button, fill the dialog, confirm.
+     *
+     * The `idle()` is load-bearing. Robolectric runs the main looper in paused mode, so the
+     * dialog button's click listener is only *queued* by `performClick()` — reading the store
+     * before draining the queue sees the state from before the save.
+     */
+    private fun addQuote(activity: MainActivity, text: String, author: String? = null) {
+        activity.findViewById<View>(R.id.addQuote).performClick()
+        val dialog = latestDialog()
+
+        dialog.findViewById<EditText>(R.id.inputText)!!.setText(text)
+        author?.let { dialog.findViewById<EditText>(R.id.inputAuthor)!!.setText(it) }
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick()
+        shadowOf(Looper.getMainLooper()).idle()
+    }
+
     private fun latestDialog(): AlertDialog {
         val dialog: Dialog? = ShadowDialog.getLatestDialog()
         assertNotNull("expected a dialog to be showing", dialog)
         return dialog as AlertDialog
-    }
-
-    private fun typeInto(dialog: AlertDialog, viewId: Int, text: String) {
-        dialog.findViewById<EditText>(viewId)!!.setText(text)
     }
 }
