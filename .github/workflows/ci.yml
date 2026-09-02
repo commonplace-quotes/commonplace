@@ -1,9 +1,9 @@
 name: CI
 
+# Runs on every branch, not just main, so work is verified before it lands.
+# There is deliberately no pull_request trigger: this repo takes no pull requests.
 on:
   push:
-    branches: [main]
-  pull_request:
   workflow_dispatch:
 
 jobs:
