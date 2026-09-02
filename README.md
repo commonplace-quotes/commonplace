@@ -121,7 +121,7 @@ own request code. There is a dedicated regression test asserting the two intents
 
 ## Status
 
-**154 tests, all green** — 117 in `:logic` on the JVM, 37 in `:app` through Robolectric — plus a
+**167 tests, all green** — 117 in `:logic` on the JVM, 50 in `:app` through Robolectric — plus a
 debug APK that builds. The workflow refuses to report success if either module executes zero
 tests, because Gradle's `test` task passes trivially when it finds nothing to run.
 
@@ -129,6 +129,10 @@ Covered: rotation (including shuffle never repeating the quote already showing, 
 and empty collections), validation, the backup format against fifteen kinds of malformed input,
 merge and replace semantics, atomic writes and recovery from a corrupted file, and the
 two-widget independence described above.
+
+The main screen is driven as a person would drive it, too — the activity is stood up for real,
+a quote is typed into the actual dialog and saved, a blank one is refused, the app is closed and
+reopened to prove the quote persisted, and the menu is exercised.
 
 **It has never run on physical hardware.** There is no Android device or emulator in the
 loop — everything above is proven by automated tests. The launcher's own drawing of the widget

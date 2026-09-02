@@ -16,7 +16,7 @@ rather than pushing one at a time.
 | Module | Framework | Count | What it covers |
 |---|---|---|---|
 | `:logic` | JUnit 5 | 117 | Rotation, validation, backup format, import semantics, fingerprinting |
-| `:app` | JUnit 4 + Robolectric | 37 | Widget intents and cursors, file storage and recovery, settings, manifest |
+| `:app` | JUnit 4 + Robolectric | 50 | Widget intents and cursors, file storage and recovery, settings, manifest, the main screen end to end |
 
 Robolectric is pinned to **SDK 34** in
 [`robolectric.properties`](../../app/src/test/resources/robolectric.properties).
@@ -51,6 +51,17 @@ QuoteWidgetProvider().onReceive(context, QuoteWidgetProvider.nextIntent(context,
 **Assert on state transitions, not on rendered `RemoteViews`.** `ShadowRemoteViews` is thin and
 asserting rendered text is brittle — which is exactly why "which quote does this cursor show"
 was extracted into the pure `WidgetQuote.select()` in `:logic`.
+
+## Driving the activity
+
+`MainActivityTest` stands the real activity up with `Robolectric.buildActivity(...).setup()` and
+drives it through the actual views — tap the button, fill the dialog, press save.
+
+**`shadowOf(Looper.getMainLooper()).idle()` after a dialog button click is load-bearing.**
+Robolectric runs the main looper paused, so `performClick()` only *queues* the listener. Reading
+the store straight afterwards sees the state from before the save, which looks exactly like "the
+app doesn't save" — it cost a full debugging round to work out the app was fine and the test was
+not. Every interaction that changes state must drain the looper before asserting.
 
 ## Things learned the hard way
 
