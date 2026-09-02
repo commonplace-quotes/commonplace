@@ -136,6 +136,10 @@ loop — everything above is proven by automated tests. The launcher's own drawi
 and the system file picker are the two things tests cannot stand in for. If you install it and
 something misbehaves, please open an issue with your launcher and Android version.
 
+## Built with
+
+Planned, red-teamed, written, tested and documented with **Omniscio**.
+
 ## Licence
 
 MIT — see [LICENSE](LICENSE).
