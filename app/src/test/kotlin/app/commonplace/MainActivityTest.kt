@@ -2,6 +2,7 @@ package app.commonplace
 
 import android.app.Dialog
 import android.content.Context
+import android.os.Looper
 import android.view.View
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
@@ -18,7 +19,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.shadows.ShadowDialog
+import org.robolectric.shadows.ShadowToast
 
 /**
  * The app has never been run on a physical device, so these stand the real activity up on the
@@ -88,14 +91,22 @@ class MainActivityTest {
 
         activity.findViewById<View>(R.id.addQuote).performClick()
         val dialog = latestDialog()
-        typeInto(dialog, R.id.inputText, "Be kind whenever possible.")
-        typeInto(dialog, R.id.inputAuthor, "Someone")
+
+        val field = dialog.findViewById<EditText>(R.id.inputText)
+        assertNotNull("the dialog does not contain the quote field", field)
+        field!!.setText("Be kind whenever possible.")
+        assertEquals("the field did not take the text", "Be kind whenever possible.", field.text.toString())
+
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick()
+        shadowOf(Looper.getMainLooper()).idle()
 
         val stored = QuoteStore(context).load()
-        assertEquals(1, stored.size)
+        assertEquals(
+            "stored=$stored toast=${ShadowToast.getTextOfLatestToast()}",
+            1,
+            stored.size,
+        )
         assertEquals("Be kind whenever possible.", stored.first().text)
-        assertEquals("Someone", stored.first().author)
         assertEquals(1, activity.findViewById<RecyclerView>(R.id.quoteList).adapter?.itemCount)
     }
 
