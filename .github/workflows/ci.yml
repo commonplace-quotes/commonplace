@@ -67,3 +67,63 @@ jobs:
             logic/build/test-results/test/*.xml
             app/build/test-results/testDebugUnitTest/*.xml
           if-no-files-found: warn
+
+  # Everything above runs on the JVM, where Robolectric only *approximates* Android. This job
+  # runs the smoke suite on a real emulator, which is the only place the widget layout is
+  # genuinely validated as RemoteViews and the activity is really created.
+  emulator:
+    name: Smoke tests on a real emulator
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.10.2'
+
+      # The emulator needs hardware acceleration to boot in reasonable time.
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' \
+            | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Run smoke tests on an emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          disable-animations: true
+          script: gradle :app:connectedDebugAndroidTest
+
+      # Same guard as the unit tests: a suite that ran nothing must not report success.
+      - name: Verify the emulator tests actually ran
+        run: |
+          count=$(cat app/build/outputs/androidTest-results/connected/**/*.xml | grep -o '<testcase ' | wc -l)
+          echo "Emulator tests: $count"
+          if [ "$count" -eq 0 ]; then
+            echo "::error::The emulator suite executed nothing - refusing to report a green build."
+            exit 1
+          fi
+
+      - name: Upload emulator test results
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: emulator-test-results
+          path: app/build/outputs/androidTest-results/connected/**/*.xml
+          if-no-files-found: warn
