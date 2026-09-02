@@ -2,9 +2,8 @@
 
 **Your own quotes on the home screen. Tap for the next one. A backup that cannot lose them.**
 
-Built for [a r/androidapps request](https://www.reddit.com/r/androidapps/) where someone asked
-for a widget of their own quotes that changes on tap — and, in their words, *"the most
-important: backup option for those quotes."*
+Built for a request on r/androidapps, where someone asked for a widget of their own quotes that
+changes on tap — and, in their words, *"the most important: backup option for those quotes."*
 
 > "An app which lets me set a widget with custom added quotes that change when tapped, and the
 > most important: backup option for those quotes. I've been looking for something like this for
