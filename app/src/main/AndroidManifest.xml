@@ -2,10 +2,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!--
-      No <uses-permission> anywhere, deliberately. Quotes live in the app's own storage,
-      backups go through the system file picker (which grants access per file), and there
-      is no INTERNET permission, so the app cannot phone home by construction.
-      ManifestTest asserts this stays true.
+      Not one permission is declared here, deliberately. Quotes live in the app's own
+      storage, backups go through the system file picker (which grants access per file),
+      and there is no INTERNET permission, so the app cannot phone home by construction.
+
+      The merged manifest is not quite empty: AndroidX injects a signature-level
+      <applicationId>.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION for its own non-exported
+      runtime receiver on Android 13+. It is scoped to this package, grants nothing, and is
+      never shown to the user. ManifestTest pins the rule that matters — no platform or
+      third-party permission, ever.
     -->
 
     <application
