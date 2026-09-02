@@ -1,6 +1,7 @@
 package app.commonplace.logic
 
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -62,9 +63,39 @@ class BackupCodecTest {
     }
 
     @ParameterizedTest(name = "unparseable input is malformed [{0}]")
-    @ValueSource(strings = ["not json at all", "{", "{\"format\":", "{{}}", "<xml/>"])
+    @ValueSource(strings = ["not json at all", "{", "{\"format\":", "{{}}", "{\"a\":}"])
     fun `text that is not JSON is malformed`(raw: String) {
         assertInstanceOf(BackupCodec.DecodeResult.Malformed::class.java, BackupCodec.decode(raw))
+    }
+
+    @Test
+    fun `a bare unquoted token is rejected as not ours`() {
+        // The JSON parser reads a single unquoted token as a primitive rather than failing,
+        // so this lands in NotOurFormat rather than Malformed. Either way nothing is imported;
+        // this test pins which message the user actually sees.
+        assertEquals(BackupCodec.DecodeResult.NotOurFormat, BackupCodec.decode("<xml/>"))
+    }
+
+    /**
+     * The property that actually matters: whatever the user picks, if it is not a genuine
+     * backup they never get an [BackupCodec.DecodeResult.Ok], so their collection is never
+     * replaced by junk. Which flavour of rejection it is matters far less than that it is one.
+     */
+    @ParameterizedTest(name = "never imports junk [{0}]")
+    @ValueSource(
+        strings = [
+            "", "   ", "not json at all", "{", "{{}}", "<xml/>", "<html><body>hi</body></html>",
+            "[]", "{}", "42", "null", "true", "\"a string\"",
+            "{\"format\":\"someone.else\",\"version\":1,\"quotes\":[]}",
+            "{\"quotes\":[{\"id\":\"a\",\"text\":\"looks right but has no envelope\"}]}",
+        ],
+    )
+    fun `a file that is not a backup never decodes to a usable collection`(raw: String) {
+        val result = BackupCodec.decode(raw)
+        assertFalse(
+            result is BackupCodec.DecodeResult.Ok,
+            "decoding $raw must not produce quotes to import, but got $result",
+        )
     }
 
     @ParameterizedTest(name = "someone else's JSON is not our format [{0}]")
