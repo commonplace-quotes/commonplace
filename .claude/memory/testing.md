@@ -52,6 +52,20 @@ QuoteWidgetProvider().onReceive(context, QuoteWidgetProvider.nextIntent(context,
 asserting rendered text is brittle — which is exactly why "which quote does this cursor show"
 was extracted into the pure `WidgetQuote.select()` in `:logic`.
 
+## The emulator job — what Robolectric cannot tell you
+
+A second CI job boots an **Android 14 emulator** and runs `app/src/androidTest` there. It is
+deliberately a small smoke suite, not a copy of the unit tests, and it exists for one thing
+Robolectric structurally cannot check:
+
+**`RemoteViews.apply()` is what a launcher actually calls, in its own process**, and it throws
+on any view or attribute RemoteViews does not support. Robolectric's shadow does not enforce
+that restriction, so a widget layout can pass every JVM test and still crash on a real home
+screen. `AppSmokeTest` inflates both `widget_quote` and `widget_preview` for real.
+
+It carries the same zero-test guard as the unit job — an emulator suite that ran nothing must
+not report success.
+
 ## Driving the activity
 
 `MainActivityTest` stands the real activity up with `Robolectric.buildActivity(...).setup()` and

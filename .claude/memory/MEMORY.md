@@ -43,6 +43,6 @@ Kotlin; `:app` is a thin Android shell over it.
 
 ## Current state
 
-177 tests green (117 `:logic`, 60 `:app`); debug APK builds. **Never run on physical
-hardware** — the launcher's rendering and the system file picker are the two things tests
-cannot stand in for. README states this plainly.
+183 tests green (117 `:logic`, 60 `:app` via Robolectric, 6 on an Android 14 emulator); debug APK
+builds. **Runs on an emulator, never on a physical phone** — your launcher's rendering and your
+device's file picker are what remain untestable. README states this plainly.

@@ -121,8 +121,8 @@ own request code. There is a dedicated regression test asserting the two intents
 
 ## Status
 
-**177 tests, all green** — 117 in `:logic` on the JVM, 60 in `:app` through Robolectric — plus a
-debug APK that builds. The workflow refuses to report success if either module executes zero
+**183 tests, all green** — 117 in `:logic` on the JVM, 60 in `:app` through Robolectric, and 6
+on a real Android 14 emulator — plus a debug APK that builds. The workflow refuses to report success if either module executes zero
 tests, because Gradle's `test` task passes trivially when it finds nothing to run.
 
 Covered: rotation (including shuffle never repeating the quote already showing, and single-quote
@@ -138,10 +138,20 @@ Backup and restore are covered end to end as well: the export is written, read b
 to be the same collection, and a restore of rubbish, an empty file, somebody else's JSON, an
 oversized file or a newer format each leaves the stored quotes exactly as they were.
 
-**It has never run on physical hardware.** There is no Android device or emulator in the
-loop — everything above is proven by automated tests. The launcher's own drawing of the widget
-and the system file picker are the two things tests cannot stand in for. If you install it and
-something misbehaves, please open an issue with your launcher and Android version.
+**It runs on an emulator; it has still never run on a physical phone.** Every push boots an
+Android 14 emulator and runs a smoke suite on it: the app launches, survives being recreated,
+round-trips quotes through real storage, and — the important one — both widget layouts are
+proven genuinely inflatable as `RemoteViews`.
+
+That last check is worth spelling out. A launcher renders a widget by calling
+`RemoteViews.apply()` **in its own process**, and anything the layout uses that RemoteViews
+doesn't support throws there — inside somebody else's app, at tap time. The JVM tests cannot
+catch that, because their stand-in for RemoteViews doesn't enforce the restriction. A real
+Android runtime does.
+
+What an emulator still can't tell you is how *your* launcher draws the widget, or how your
+device's file picker behaves. If you install it and something misbehaves, please open an issue
+with your launcher and Android version.
 
 ## Built with
 
