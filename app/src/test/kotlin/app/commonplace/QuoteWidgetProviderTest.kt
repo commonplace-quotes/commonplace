@@ -2,9 +2,11 @@ package app.commonplace
 
 import android.appwidget.AppWidgetManager
 import android.content.Context
+import android.content.Intent
 import androidx.test.core.app.ApplicationProvider
 import app.commonplace.logic.OrderMode
 import app.commonplace.logic.Quote
+import app.commonplace.logic.Rotation
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
@@ -35,7 +37,7 @@ class QuoteWidgetProviderTest {
     /**
      * The regression this whole class exists for.
      *
-     * PendingIntent reuse is decided by [android.content.Intent.filterEquals], which compares
+     * PendingIntent reuse is decided by [Intent.filterEquals], which compares
      * action, data, type, package, component and categories — and deliberately ignores extras.
      * If the two intents below were filter-equal, both widgets would end up sharing one
      * PendingIntent and tapping either would advance whichever was registered last.
@@ -112,7 +114,7 @@ class QuoteWidgetProviderTest {
 
         tap(id)
 
-        assertEquals(app.commonplace.logic.Rotation.NO_QUOTE, WidgetSettings(context).cursorFor(id))
+        assertEquals(Rotation.NO_QUOTE, WidgetSettings(context).cursorFor(id))
     }
 
     @Test
@@ -121,7 +123,7 @@ class QuoteWidgetProviderTest {
         val settings = WidgetSettings(context)
         settings.setCursor(id, 0)
 
-        val malformed = android.content.Intent(context, QuoteWidgetProvider::class.java)
+        val malformed = Intent(context, QuoteWidgetProvider::class.java)
             .setAction(QuoteWidgetProvider.ACTION_NEXT)
         QuoteWidgetProvider().onReceive(context, malformed)
 
@@ -138,7 +140,7 @@ class QuoteWidgetProviderTest {
 
         QuoteWidgetProvider().onDeleted(context, intArrayOf(id))
 
-        assertEquals(app.commonplace.logic.Rotation.NO_QUOTE, settings.cursorFor(id))
+        assertEquals(Rotation.NO_QUOTE, settings.cursorFor(id))
     }
 
     @Test

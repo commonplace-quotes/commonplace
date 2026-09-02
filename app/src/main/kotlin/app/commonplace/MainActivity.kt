@@ -2,6 +2,7 @@ package app.commonplace
 
 import android.net.Uri
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -57,7 +58,7 @@ class MainActivity : AppCompatActivity() {
         show(store.load())
     }
 
-    private fun onMenuSelected(item: android.view.MenuItem): Boolean = when (item.itemId) {
+    private fun onMenuSelected(item: MenuItem): Boolean = when (item.itemId) {
         R.id.action_backup -> true.also { chooseBackupDestination.launch(DEFAULT_BACKUP_NAME) }
         R.id.action_restore -> true.also { chooseBackupToRestore.launch(OPENABLE_TYPES) }
         R.id.action_order -> true.also { showOrderPicker() }
