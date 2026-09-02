@@ -16,7 +16,7 @@ rather than pushing one at a time.
 | Module | Framework | Count | What it covers |
 |---|---|---|---|
 | `:logic` | JUnit 5 | 117 | Rotation, validation, backup format, import semantics, fingerprinting |
-| `:app` | JUnit 4 + Robolectric | 50 | Widget intents and cursors, file storage and recovery, settings, manifest, the main screen end to end |
+| `:app` | JUnit 4 + Robolectric | 60 | Widget intents and cursors, file storage and recovery, settings, manifest, the main screen and the backup flow end to end |
 
 Robolectric is pinned to **SDK 34** in
 [`robolectric.properties`](../../app/src/test/resources/robolectric.properties).

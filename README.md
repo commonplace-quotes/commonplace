@@ -121,7 +121,7 @@ own request code. There is a dedicated regression test asserting the two intents
 
 ## Status
 
-**167 tests, all green** — 117 in `:logic` on the JVM, 50 in `:app` through Robolectric — plus a
+**177 tests, all green** — 117 in `:logic` on the JVM, 60 in `:app` through Robolectric — plus a
 debug APK that builds. The workflow refuses to report success if either module executes zero
 tests, because Gradle's `test` task passes trivially when it finds nothing to run.
 
@@ -133,6 +133,10 @@ two-widget independence described above.
 The main screen is driven as a person would drive it, too — the activity is stood up for real,
 a quote is typed into the actual dialog and saved, a blank one is refused, the app is closed and
 reopened to prove the quote persisted, and the menu is exercised.
+
+Backup and restore are covered end to end as well: the export is written, read back, and checked
+to be the same collection, and a restore of rubbish, an empty file, somebody else's JSON, an
+oversized file or a newer format each leaves the stored quotes exactly as they were.
 
 **It has never run on physical hardware.** There is no Android device or emulator in the
 loop — everything above is proven by automated tests. The launcher's own drawing of the widget
